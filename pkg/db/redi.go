@@ -243,7 +243,7 @@ func (self *Redi) Collect() (model.Snapshot, error) {
 			return nil, errors.New("TYPE key failed.")
 		}
 
-		// func map
+		// special key
 		fmap := map[string]func(string, *model.Snapshot) error{
 			"hash": self.collectHash,
 			// "geo" : collect geo,
@@ -253,12 +253,28 @@ func (self *Redi) Collect() (model.Snapshot, error) {
 		}
 
 		f, ok := fmap[keyType]
+
+		// special key
 		if ok {
 			err := f(key, &snapshot)
 
 			// failed
 			if err != nil {
 				return nil, err
+			}
+		
+		// common key
+		}else {
+
+			keyToken := model.Token{
+				Level : model.TOKEN_LEVEL_1,
+				Text : key,
+			}
+
+			_, ok := snapshot[keyToken]
+
+			if !ok {
+				snapshot[keyToken] = make([]model.Token, 0)
 			}
 		}
 

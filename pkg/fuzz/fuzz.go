@@ -8,10 +8,11 @@ import (
 	"path/filepath"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/fuxxcss/redi2fuzz/pkg/db"
-	"github.com/fuxxcss/redi2fuzz/pkg/utils"
 	"github.com/fuxxcss/redi2fuzz/pkg/model"
+	"github.com/fuxxcss/redi2fuzz/pkg/utils"
 )
 
 // export
@@ -107,6 +108,11 @@ func fuzzServer(target db.DB, queue string) {
 		return nil
 	})
 
+	corpus.Debug()
+
+	log.Fatal()
+	fmt.Println("[*] corpus ok")
+
 	// mutate loop
 	tryCnt := 0
 
@@ -191,7 +197,6 @@ func fuzzLoop(target db.DB, lines []*model.Line) {
 		case utils.STATE_CRASH:
 
 			fuzzCrash(target, lines, index)
-
 		}
 
 	}
@@ -207,7 +212,38 @@ func fuzzLoop(target db.DB, lines []*model.Line) {
 // private
 func fuzzCrash(target db.DB, lines []*model.Line, index int) {
 
-	file, err := os.OpenFile(lines[index].Hash, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0664)
+	t := time.Now().UnixNano()
+	name := "poc/" + strconv.FormatInt(t, 10)
+
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0664)
+
+	// don't miss crash
+	if err != nil {
+		crashPrint(lines, index)
+	}
+
+	// log crash in json
+	size := len(lines)
+	cj := make(utils.CrashJson, size)
+
+	for i, line := range lines {
+		cj[i] = line.Text()
+	}
+
+	// to json
+	bytes, err := cj.ToJson()
+
+	if err != nil {
+		crashPrint(lines, index)
+	}
+
+	file.Write(bytes)
+
+	// restart
+	target.Restart()
+}
+
+func crashPrint(lines []*model.Line, index int) {
 
 	// alert
 	alert := "[*] Found a crash :)\n"
@@ -219,7 +255,6 @@ func fuzzCrash(target db.DB, lines []*model.Line, index int) {
 	for _, line := range lines {
 
 		var str string
-
 		texts := line.Text()
 
 		for _, text := range texts {
@@ -229,17 +264,6 @@ func fuzzCrash(target db.DB, lines []*model.Line, index int) {
 		crash += str + model.LineSep
 	}
 
-	// don't miss crash
-	if err != nil {
-
-		fmt.Println(alert)
-		log.Fatalln(crash)
-	}
-
-	// log crash
-	file.WriteString(alert)
-	file.WriteString(crash)
-
-	// restart
-	target.Restart()
+	fmt.Println(alert)
+	log.Fatalln(crash)
 }

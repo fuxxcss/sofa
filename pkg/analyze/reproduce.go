@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/fuxxcss/redi2fuzz/pkg/db"
 	"github.com/fuxxcss/redi2fuzz/pkg/utils"
-	"github.com/fuxxcss/redi2fuzz/pkg/model"
-
 )
 
 func Analyze(target utils.TargetType, path string) {
@@ -30,30 +27,38 @@ func Analyze(target utils.TargetType, path string) {
 	case utils.REDI_REDIS, utils.REDI_KEYDB, utils.REDI_STACK:
 		DBtarget = db.NewRedi(feature)
 	}
-	
+
 	// StartUp target first
 	err = DBtarget.StartUp()
 	defer DBtarget.ShutDown()
-	
+
 	if err != nil {
 		log.Println("err: db startup failed.")
 		return
 	}
 
-	// test bug
-	lines := strings.Split(string(context), model.LineSep)
-	index := -1
-	var bug string
+	// from json
+	cj := make(utils.CrashJson, 0)
+	err = cj.FromJson(context)
 
-	for i, line := range lines {
+	if err != nil {
+		log.Fatalln("err: json decode failed.")
+	}
+
+	// test bug
+	index := -1
+	var bug []string
+
+	for i, line := range cj {
 
 		// execute each line
-		tokens := strings.Split(line, model.TokenSep)
-		DBtarget.Execute(tokens)
+		DBtarget.Execute(line)
 
 		alive := DBtarget.CheckAlive()
 
+		// crash
 		if !alive {
+
 			index = i
 			bug = line
 			break

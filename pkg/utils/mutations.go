@@ -19,8 +19,7 @@ var	InterestingStr = []string {
 	"\"\"", 			     // empty
 	"\x00",					 // null
 	"\r",					 // terminal
-	"\xff\xfe",				 // hex
-	" ;+-*>([",			     // special
+	" ;*>([",			     // special
 	strings.Repeat("a", 4097), // long str
 }
 
@@ -44,8 +43,6 @@ var InterestingValue = []string {
 	"0.0",
 	"-0.0000000000000001",
 	"0.0000000000000001",
-	"-3.14",
-	"3.14",
 }
 
 

@@ -39,18 +39,25 @@ func (self *Snapshot) Debug() {
 
 func (self *Snapshot) Contains(token Token) bool {
 
-	slice, ok := (*self)[token]
+	_, ok := (*self)[token]
 
 	// contain token
-	if ok ||  slices.Contains(slice, token) {
-
+	if ok {
 		return true
+	}
+
+	for _, tokens := range *self {
+
+		// contain token
+		if slices.Contains(tokens, token) {
+			return true
+		}
 	}
 
 	return false
 }
 
-func (self *Snapshot) Delete(k, v Token) []Token{
+func (self *Snapshot) Delete(k, v Token) []Token {
 
 	slice := (*self)[k]
 
@@ -59,12 +66,9 @@ func (self *Snapshot) Delete(k, v Token) []Token{
 	for _, t := range slice {
 		if t != v {
 			slice[i] = t
-			i ++
+			i++
 		}
 	}
 
 	return slice[:i]
 }
-
-
-

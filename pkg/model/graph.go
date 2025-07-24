@@ -39,12 +39,6 @@ func (self *Graph) AddVertex(data *Token) *Vertex{
 // public
 func (self *Graph) Match(graph *Graph) bool {
 
-	/*
-	log.Println("before match")
-	self.Debug()
-	graph.Debug()
-	*/
-
 	// token level num
 	matchNum := make(map[TokenLevel]int, 0)
 	hasNum := make(map[TokenLevel]int, 0)

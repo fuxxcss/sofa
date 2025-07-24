@@ -3,7 +3,6 @@ package model
 import (
 	"errors"
 	"log"
-	"math/rand"
 	"strconv"
 	"strings"
 
@@ -31,26 +30,24 @@ const (
 
 // line score
 const (
-	LINE_SCORE_CREATE int = 2
-	LINE_SCORE_DELETE int = 2
-	LINE_SCORE_KEEP int = 1
+	LINE_SCORE_CREATE int64 = 2
+	LINE_SCORE_DELETE int64 = 2
+	LINE_SCORE_KEEP   int64 = 1
 )
 
 type Line struct {
 
 	// public
-	Hash string
-	Weight int
+	Weight int64
 
 	// private
-	graph *Graph
+	graph  *Graph
 	tokens []*Token
 }
 
 type Token struct {
-	
 	Level TokenLevel
-	Text string
+	Text  string
 }
 
 // public
@@ -58,16 +55,20 @@ func NewLine(str, hash string) *Line {
 
 	Line := new(Line)
 
-	Line.Hash = hash
 	Line.graph = NewGraph()
 	Line.tokens = make([]*Token, 0)
 	Line.Weight = 0
 
 	// split tokens
 	tokens := strings.Split(str, TokenSep)
-	
+
 	for _, token := range tokens {
-		
+
+		// skip empty
+		if token == "" {
+			continue
+		}
+
 		// default 0
 		tokenLevel := TOKEN_LEVEL_0
 
@@ -102,13 +103,6 @@ func (self *Line) Build(new Snapshot) error {
 
 	old := oldSnapshot
 
-	/*
-	log.Println("old snapshot")
-	old.Debug()
-	log.Println("new snapshot")
-	new.Debug()
-	*/
-
 	// loop create, keep
 	for from, toSlice := range new {
 
@@ -135,8 +129,8 @@ func (self *Line) Build(new Snapshot) error {
 			// add vertex
 			self.graph.next = append(self.graph.next, fromVertex)
 
-		// keep from
-		}else {
+			// keep from
+		} else {
 
 			// from token
 			fromToken := self.Contains(&from)
@@ -182,12 +176,12 @@ func (self *Line) Build(new Snapshot) error {
 				self.graph.next = append(self.graph.next, toVertex)
 				fromVertex.next = append(fromVertex.next, toVertex)
 
-			// keep to
-			}else {
+				// keep to
+			} else {
 
 				// remove to
 				old[from] = old.Delete(from, to)
-				
+
 				// to token
 				toToken := self.Contains(&to)
 
@@ -226,7 +220,7 @@ func (self *Line) Build(new Snapshot) error {
 			continue
 		}
 
-		fromToken.Level = from.Level		
+		fromToken.Level = from.Level
 
 		// from vertex
 		fromVertex := self.graph.AddVertex(fromToken)
@@ -288,32 +282,36 @@ func (self *Line) Repair(lines []*Line) bool {
 }
 
 // public
-func (self *Line) Mutate(r *rand.Rand) {
+func (self *Line) Mutate() {
 
 	// mutate str, value
 	for _, token := range self.tokens {
 
 		switch token.Level {
+
 		// mutate str
 		case TOKEN_LEVEL_str:
-			token.Text = MutateStr(r, token.Text)
+			token.Text = MutateStr(token.Text)
+			
 		// mutate value
 		case TOKEN_LEVEL_value:
-			item := r.Intn(len(utils.InterestingValue))
+			item := utils.RandInt(len(utils.InterestingValue))
 			token.Text = utils.InterestingValue[item]
 		}
 	}
 
 	// mutate level 123...
 	for _, next := range self.graph.next {
-		next.data.Text = MutateStr(r, next.data.Text)
+
+		text := next.data.Text
+		next.data.Text = MutateStr(text)
 	}
 
 }
 
-func MutateStr(r *rand.Rand, str string) string {
+func MutateStr(str string) string {
 
-	item := r.Intn(len(utils.InterestingStr))
+	item := utils.RandInt(len(utils.InterestingStr))
 	chosen := utils.InterestingStr[item]
 
 	switch item {
@@ -321,10 +319,10 @@ func MutateStr(r *rand.Rand, str string) string {
 	// empty
 	case utils.InterestEmpty:
 		return chosen
-		
+
 	// special
 	case utils.InterestSpecial:
-		special := r.Intn(len(chosen))
+		special := utils.RandInt(len(chosen))
 		return str + string(chosen[special])
 
 	// null, terminal, hex, short str
@@ -379,10 +377,8 @@ func (self *Line) Debug() {
 	}
 
 	log.Printf("line: %s\n", str)
-	log.Printf("hash: %s\n", self.Hash)
 	log.Printf("weight: %d\n", self.Weight)
 	self.graph.Debug()
 
-	log.Println("==== 			 ====")
+	log.Println("==== Line Debug ====")
 }
-
