@@ -1,0 +1,50 @@
+APPEND strkey "str"
+APPEND strkey "str"
+APPEND intkey 1
+APPEND intdkey 1
+DECR dekey
+DECR dekey
+INCR inkey 
+INCR inkey
+INCRBY inbykey 1
+INCRBY inbykey 1
+DECRBY debykey 1
+DECRBY debykey 1  
+INCRBYFLOAT floatkey 3.14
+INCRBYFLOAT floatkey 3.14
+GET dekey 
+GETDEL dekey 
+GETEX inkey PXAT 1640995200 
+GETEX inkey EXAT 1640995200 
+GETEX inkey EX 60              
+GETEX inkey PX 60 
+GETEX inkey PERSIST      
+GETRANGE strkey 1 3  
+// todo
+SET str1 "str"
+SET str2 "str"   
+LCS str1 str2 IDX MINMATCHLEN 3 WITHMATCHLEN  
+LCS str1 str2 LEN     
+SETRANGE key1 2 "X" 
+DEL key1
+MSETNX key1 "v1" key2 "v2"         
+MSET key1 "v1" key2 "v2"                             
+SET list_key 123                          
+GET list_key                              
+SETRANGE str1 524288 "B"                
+STRLEN str1                       
+DEL key1      
+SET key1 "val" XX                        
+SET key2 "val" NX GET               
+DEL key1      
+SET key1 "expire" KEEPTTL        
+SET key1 "expire" EX 3600          
+SET int_max 1        
+INCR int_max                              
+DECRBY int_min 2 
+MGET key1 key2 str1  
+SET tmp_key "temp" PX 10
+GETEX tmp_key PXAT 1640995200000           
+TTL tmp_key                              
+SETRANGE tmp_key 1048576 "A"            
+STRLEN tmp_key 

@@ -1,0 +1,50 @@
+SET source_key "value"
+COPY source_key dest_key
+GET dest_key  
+SET dest_key "old"
+COPY source_key dest_key REPLACE
+SET key1 "k1" 
+SET key2 "k2"
+DEL key1 key2
+EXISTS source_key dest_key 
+TYPE source_key  
+LPUSH list_key "item"
+SET dump_key "dump_test"
+DUMP dump_key AS dump_data
+RESTORE restore_key 0 dump_data
+MIGRATE 127.0.0.1 6379 source_key 0 5000 COPY 
+EXPIRE expire_key 60  
+TTL expire_key 
+EXPIREAT expirat_key 99  
+EXPIRETIME expirat_key  
+PERSIST expire_key 
+TTL expire_key 
+EXPIRE source_key 60 NX  
+EXPIRE source_key 30 XX  
+RENAME source_key renamed_key
+SET target_key "existing"
+RENAMENX renamed_key target_key 
+TOUCH target_key
+OBJECT IDLETIME target_key  
+RANDOMKEY 
+MSET k1 "v1" k2 "v2" k3 "v3"
+KEYS "k*" 
+SCAN 0 MATCH "k*" COUNT 10  
+LPUSH sort_list 3 1 2
+SORT sort_list 
+SORT_RO sort_list DESC  
+SET int_key "123"
+OBJECT ENCODING int_key  
+SET ref_key "ref"
+OBJECT REFCOUNT ref_key  
+OBJECT IDLETIME ref_key  
+SET unlink_key "test"
+UNLINK unlink_key 
+MOVE unlink_key 1
+SET mykey "10"
+DEL mykey
+RESTORE mykey 0 dump_data
+GET mykey 
+LPUSH mylist 1 2 3
+SORT mylist BY "weight*" 
+GET "object*" 

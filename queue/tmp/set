@@ -1,0 +1,40 @@
+SADD test_set "apple"
+SADD test_set "banana" "cherry"
+SCARD test_set
+SMEMBERS test_set
+SREM test_set "banana"  
+SREM test_set "grape"  
+SMEMBERS test_set  
+SISMEMBER test_set "apple"  
+SISMEMBER test_set "grape"  
+SMISMEMBER test_set "apple" "banana" "grape"
+SADD source_set "one" "two"
+SADD dest_set "three"
+SMOVE source_set dest_set "two" 
+SMOVE source_set dest_set "four"
+SPOP test_set  
+SPOP test_set 2  
+SRANDMEMBER test_set  
+SRANDMEMBER test_set 3  
+SRANDMEMBER test_set -5 
+SADD scan_set "apple1" "apple2" "banana1"
+SSCAN scan_set 0 MATCH "apple*" COUNT 10 
+SADD setA "a" "b" "c"
+SADD setB "c" "d" "e"
+SDIFF setA setB  
+SDIFF setB setA  
+SDIFFSTORE diff_result setA setB
+SMEMBERS diff_result 
+SINTER setA setB  
+SADD setC "c" "f"
+SINTER setA setB setC 
+SINTERCARD 3 setA setB  
+SINTERCARD 3 setA setB LIMIT 1  
+SINTERSTORE inter_result setA setB
+SMEMBERS inter_result  
+SUNION setA setB 
+SUNION setA setB setC  
+SUNIONSTORE union_result setA setB
+SMEMBERS union_result 
+SDIFF empty_key setA  
+SINTER empty_key setA  

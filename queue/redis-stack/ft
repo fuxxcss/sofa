@@ -1,0 +1,177 @@
+// 1. 创建哈希索引
+FT.CREATE idx:books ON HASH PREFIX 1 book: SCHEMA 
+    title TEXT WEIGHT 5.0 
+    author TAG SORTABLE 
+    year NUMERIC SORTABLE 
+    tags TAG SEPARATOR ";" 
+    description TEXT 
+    price NUMERIC
+
+// 2. 创建JSON索引
+FT.CREATE idx:users ON JSON PREFIX 1 user: SCHEMA 
+    $.name AS name TEXT 
+    $.email AS email TAG 
+    $.location AS location GEO 
+    $.interests AS interests TAG
+
+// 3. 添加索引别名
+FT.ALIASADD books_alias idx:books
+
+// 4. 更新索引别名
+FT.ALIASUPDATE books_alias idx:books_v2
+
+// 5. 删除索引别名
+FT.ALIASDEL books_alias
+
+// 6. 添加索引字段
+FT.ALTER idx:books SCHEMA ADD rating NUMERIC SORTABLE
+
+// 7. 添加停用词
+FT.CREATE idx:articles STOPWORDS 3 a an the SCHEMA content TEXT
+
+// 8. 创建临时索引
+FT.CREATE temp:logs TEMPORARY 3600 SCHEMA log TEXT
+
+// 9. 删除索引(保留数据)
+FT.DROPINDEX idx:articles
+
+// 10. 删除索引(同时删除数据)
+FT.DROPINDEX idx:logs DD
+
+// 11. 添加哈希文档
+HSET book:1 title "Redis Essentials" author "Tiwari" year 2022 tags "database;nosql" description "In-depth Redis guide" price 39.99
+
+// 12. 添加JSON文档
+JSON.SET user:1 $ '{"name":"Alice","email":"alice@example.com","location":"-122.41,37.77","interests":"hiking;reading"}'
+
+// 13. 添加建议词
+FT.SUGADD autocomplete "redis" 10
+FT.SUGADD autocomplete "redisearch" 8
+
+// 14. 添加同义词
+FT.SYNUPDATE idx:books group1 SKIPINITIALSCAN "database" "DB" "datastore"
+
+// 15. 添加自定义词典
+FT.DICTADD techterms "redis" "nosql" "cluster"
+
+// 16. 删除建议词
+FT.SUGDEL autocomplete "redisearch"
+
+// 17. 删除词典词
+FT.DICTDEL techterms "cluster"
+
+// 18. 更新哈希文档
+HSET book:1 rating 4.5
+
+// 19. 更新JSON文档
+JSON.SET user:1 $.interests '"hiking;reading;programming"'
+
+// 20. 更新同义词
+FT.SYNUPDATE idx:books group1 "database" "DB" "storage"
+
+// 21. 基础全文搜索
+FT.SEARCH idx:books "database guide" RETURN 2 title price
+
+// 22. 过滤搜索结果
+FT.SEARCH idx:books "@title:redis @year:[2020 2023]" RETURN 3 title author year
+
+// 23. 地理位置搜索
+FT.SEARCH idx:users "@location:[-122.42 37.76 10 km]" RETURN 2 name email
+
+// 24. 标签精确匹配
+FT.SEARCH idx:books "@tags:{nosql}" RETURN 1 title
+
+// 25. 高亮搜索结果
+FT.SEARCH idx:books "essentials" HIGHLIGHT FIELDS 1 title TAGS "<b>" "</b>"
+
+// 26. 结果摘要
+FT.SEARCH idx:books "in-depth" SUMMARIZE FIELDS 1 description LEN 20
+
+// 27. 排序结果
+FT.SEARCH idx:books "redis" SORTBY price DESC LIMIT 0 5
+
+// 28. 带分页搜索
+FT.SEARCH idx:books "*" LIMIT 10 5 RETURN 2 title price
+
+// 29. 参数化查询
+FT.SEARCH idx:books "(@title:$query)" PARAMS 2 query "Redis*" DIALECT 2
+
+// 30. 带权重搜索
+FT.SEARCH idx:books "redis => { $weight: 5.0 } database" DIALECT 2
+
+// 31. 拼写检查
+FT.SPELLCHECK idx:books "reddis databas" DISTANCE 2
+
+// 32. 排除词典词
+FT.SPELLCHECK idx:books "reddis" TERMS EXCLUDE techterms
+
+// 33. 获取同义词组
+FT.SYNDUMP idx:books
+
+// 34. 获取标签值
+FT.TAGVALS idx:books tags
+
+// 35. 获取索引信息
+FT.INFO idx:books
+
+// 36. 基础聚合
+FT.AGGREGATE idx:books "*" GROUPBY 1 @author REDUCE COUNT 0 AS total_books
+
+// 37. 多级分组
+FT.AGGREGATE idx:books "*" 
+    GROUPBY 2 @author @year 
+    REDUCE COUNT 0 AS count 
+    REDUCE AVG 1 @price AS avg_price 
+    SORTBY 4 @author ASC @year DESC
+
+// 38. 应用转换
+FT.AGGREGATE idx:books "*" 
+    APPLY "2023 - @year" AS years_since_pub 
+    GROUPBY 1 @years_since_pub 
+    REDUCE COUNT 0 AS count
+
+// 39. 结果过滤
+FT.AGGREGATE idx:books "*" 
+    GROUPBY 1 @author 
+    REDUCE COUNT 0 AS count 
+    FILTER "@count > 2"
+
+// 40. 游标分页
+FT.AGGREGATE idx:books "*" 
+    GROUPBY 1 @tags 
+    REDUCE COUNT 0 AS count 
+    WITHCURSOR COUNT 10
+    
+// 41. 读取游标
+FT.CURSOR READ idx:books 1678901234
+
+// 42. 删除游标
+FT.CURSOR DEL idx:books 1678901234
+
+// 43. 加载字段
+FT.AGGREGATE idx:books "@price:[30 50]" LOAD 1 description
+
+// 44. 带评分聚合
+FT.AGGREGATE idx:books "database" ADDSCORES SORTBY 2 @__score DESC
+
+// 45. 复杂应用
+FT.AGGREGATE idx:books "*" 
+    APPLY "split(@tags, ';')" AS tag_list 
+    APPLY "floor(@price)" AS price_floor 
+    GROUPBY 1 @price_floor 
+    REDUCE COUNT_DISTINCT 1 @author AS unique_authors
+
+// 46. 获取自动完成建议
+FT.SUGGET autocomplete "red" FUZZY WITHSCORES
+
+// 47. 带payload获取建议
+FT.SUGGET autocomplete "redis" WITHPAYLOADS
+
+// 48. 限制建议数量
+FT.SUGGET autocomplete "re" MAX 3
+
+// 49. 获取建议字典大小
+FT.SUGLEN autocomplete
+
+// 50. 解释查询计划
+FT.EXPLAIN idx:books "@title:redis @year:[2020 2023]"

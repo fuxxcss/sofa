@@ -1,0 +1,69 @@
+ZADD z1 XX 3.5 member1               
+ZADD z2 NX LT CH 5 member1    
+ZADD z3 GT 1 member1 2 member2             
+ZADD z4 INCR 0 member         
+ZADD z5 1 "-inf"
+ZADD z6 2 "🙂😊😇"                                      
+BZMPOP 0.5 2 z1 z2 MIN COUNT 0 
+BZMPOP -1 3 z1 z2 z3 MAX
+BZMPOP 2.5 1 z1 COUNT 100         
+ZPOPMAX z1 0                  
+ZPOPMIN z2 5     
+ZINTERSTORE dest1 2 z1 z2 WEIGHTS 2 3     
+ZINTERSTORE dest2 3 z1 z2 z3 WEIGHTS 1 2 3    
+ZRANGE z1 (5 (1 BYSCORE REV LIMIT -5 0    
+ZRANGE z2 ["alpha" ["omega" BYLEX WITHSCORES
+ZRANDMEMBER z4 1 WITHSCORES      
+ZRANDMEMBER z5 2     
+ZSCAN z1 0 MATCH "*:*:*" COUNT 1         
+ZSCAN z2 123 MATCH "[a-z]"  
+ZUNION 3 z1 z2 z3 AGGREGATE SUM      
+ZUNION -5 z1 z2 WEIGHTS 1 2
+BZPOPMAX z1 z2 0.0                
+BZPOPMIN z1 z2 3.5        
+ZLEXCOUNT z1 ("invalid" ["unclosed"      
+ZLEXCOUNT z2 + -                       
+ZMPOP 5 z1 z2 z3 z4 z5 MAX COUNT 1       
+ZMPOP 1 z6 MIN                   
+ZRANGESTORE dest3 z3 -5 -1 REV     
+ZRANGESTORE dest4 z3 (5 (10 BYSCORE 
+ZRANGESTORE dest_lex z5 - + BYLEX
+ZREM z1 "non_exist" "multi" 
+ZREM z2 "key with spaces" 1           
+ZREMRANGEBYRANK z1 -100 1      
+ZREMRANGEBYSCORE z2 -inf (2   
+ZREVRANK z1 "ghost_member" WITHSCORE   
+ZSCORE z2 "valid_member"        
+UNIONSTORE dest5 2 z1 z2 WEIGHTS 1 -1
+ZUNIONSTORE dest6 3 z1 z2 z3 AGGREGATE SUM WEIGHTS 1 2 3
+ZUNIONSTORE dest_overflow 2 z1 z2 AGGREGATE MAX WEIGHTS 1 2
+ZRANGE z1 0 -1 BYSCORE REV WITHSCORES LIMIT 25 25
+ZRANGE z3 0 -1 BYLEX 
+ZINCRBY z2 5 "member"           
+BZMPOP 0.001 1 z4 MIN             
+BZPOPMAX z5 1.5               
+ZADD z_comp NX LT 999 "immutable"      
+ZADD z_comp XX GT 0 "conditional"
+ZDIFF 3 z1 z2 z3 WITHSCORES               
+ZDIFF 1 z1                                   
+ZDIFFSTORE dest_diff 3 z2 z1 z3       
+ZDIFFSTORE dest_empty 1 z3 
+ZCARD z4                    
+ZCOUNT z1 0 +inf
+ZCOUNT z2 -inf 1                       
+ZCOUNT z5 (1.5 (3.8        
+ZLEXCOUNT z1 ["a" ["z"                    
+ZLEXCOUNT z6 ("alpha" ["omega"         
+ZREMRANGEBYLEX z4 ("b" ("f"                
+ZREMRANGEBYLEX z3 ["a" ["z"          
+ZREMRANGEBYSCORE z1 1 3         
+ZREMRANGEBYSCORE z2 (5 +inf          
+ZSCAN z4 0 MATCH "user:*" COUNT 5   
+ZSCAN z1 123                   
+ZINTER 2 z1 z2 WEIGHTS 2 1             
+ZINTERCARD 3 z1 z2 z3 LIMIT 2             
+ZINTERCARD 2 z4 z5         
+ZRANK z3 "member" WITHSCORE       
+ZADD z7 1 "a"
+ZMSCORE z3 member1 member2
+ZMSCORE z5 "-inf"

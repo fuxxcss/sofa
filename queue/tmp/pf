@@ -1,0 +1,24 @@
+PFADD hll_test "element1" "element2"  
+PFCOUNT hll_test
+PFADD hll1 "a" "b" "c"              
+PFADD hll2 "c" "d" "e"
+PFMERGE hll_merged hll1 hll2          
+PFCOUNT hll_merged
+PFADD hll_merged "f"                 
+PFMERGE hll_merged hll1 hll2
+PFADD hll_test "element1" "element2"  
+PFCOUNT hll_test
+PFADD hll1 "a" "b" "c"              
+PFADD hll2 "c" "d" "e"
+PFMERGE hll_merged hll1 hll2          
+PFCOUNT hll_merged
+PFADD hll_merged "f"                 
+PFMERGE hll_merged hll1 hll2
+PFADD hll_test "element1" "element2"  
+PFCOUNT hll_test
+PFADD hll1 "a" "b" "c"              
+PFADD hll2 "c" "d" "e"
+PFMERGE hll_merged hll1 hll2          
+PFCOUNT hll_merged
+PFADD hll_merged "f"                 
+PFMERGE hll_merged hll1 hll2

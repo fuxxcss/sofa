@@ -1,0 +1,50 @@
+RPUSH source_list "a" "b"
+RPUSH dest_list "x"
+BLMOVE source_list dest_list RIGHT LEFT 0  
+LRANGE source_list 0 -1  
+LRANGE dest_list 0 -1   
+BLMOVE empty_source dest_list LEFT RIGHT 1  
+LPUSH list1 "one"
+LPUSH list2 "two"
+BLMPOP 0 2 list1 list2 LEFT COUNT 1  
+RPUSH listA "a"
+BLPOP listB listA 0  
+RPUSH listC "x" "y"
+BRPOP listC 0  
+RPUSH mylist "a" "b" "c"
+LINDEX mylist 0    
+LINDEX mylist -1   
+LINDEX mylist 10 
+LINSERT mylist BEFORE "b" "inserted"
+LRANGE mylist 0 -1  
+LLEN mylist          
+LPUSH src_list "1" "2"
+LMOVE src_list dest_list LEFT RIGHT  
+LRANGE src_list 0 -1  
+LRANGE dest_list 0 -1 
+RPUSH listX "a" "b" "c"
+RPUSH listY "x" "y"
+LMPOP 2 listX listY RIGHT COUNT 2  
+RPUSH lpop_test "a" "b" "c"
+LPOP lpop_test       
+LPOP lpop_test 2    
+RPUSH rpop_test "1" "2" "3" "4"
+RPOP rpop_test 3     
+LPUSHX list1 "a"  
+LPUSH exist_list "x"
+LPUSHX exist_list "y"
+RPUSH range_list "a" "b" "c" "d"
+LRANGE range_list 1 2     
+LRANGE range_list -3 -1    
+LSET range_list 0 "new_a"
+LSET range_list -1 "new_d"
+LRANGE range_list 0 -1  
+RPUSH trim_list "1" "2" "3" "4" "5"
+LTRIM trim_list 1 3      
+RPUSH rem_list "a" "b" "a" "c" "a"
+LREM rem_list 2 "a"     
+LREM rem_list -1 "a"    
+RPUSH pos_list "x" "y" "x" "z" "x"
+LPOS pos_list "x"       
+LPOS pos_list "x" RANK 2  
+LPOS pos_list "x" COUNT 2  

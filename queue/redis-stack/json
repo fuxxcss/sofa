@@ -1,0 +1,115 @@
+JSON.SET user:1 $ '{"name":"Alice","age":30,"address":{"city":"Paris"},"active":true}'
+JSON.GET user:1
+JSON.GET user:1 $.address.city
+JSON.SET user:2 $ '{"id":100}' NX
+JSON.SET user:1 $.age 31 XX
+JSON.DEL user:1 $.active
+JSON.MSET user:1 $.name "Alice Smith" user:2 $.email "bob@example.com"
+JSON.MGET user:1 user:2 $.name
+JSON.MERGE user:1 $.address '{"zip":"75001"}'
+JSON.CLEAR user:2
+JSON.DEBUG MEMORY user:1
+JSON.TOGGLE user:1 $.active
+JSON.TYPE user:1 $.age
+JSON.STRAPPEND user:1 $.name " (verified)"
+JSON.STRLEN user:1 $.name
+JSON.SET arr:1 $ '[10,20,30]'
+JSON.ARRAPPEND arr:1 $ 40 50
+JSON.ARRINSERT arr:1 $ 1 15 18
+JSON.ARRLEN arr:1
+JSON.ARRINDEX arr:1 $ 30 0 -1
+JSON.ARRPOP arr:1 $ -1
+
+// 22. 数组修剪
+JSON.ARRTRIM arr:1 $ 1 3
+
+// 23. 嵌套数组操作
+JSON.SET matrix:1 $ '{"data":[[1,2],[3,4]]}'
+JSON.ARRAPPEND matrix:1 $.data[0] 5
+
+// 24. 空数组处理
+JSON.SET empty:1 $ '[]'
+JSON.ARRLEN empty:1
+
+// 25. 负数索引插入
+JSON.ARRINSERT arr:1 $ -1 45
+
+// 26. 范围查找
+JSON.ARRINDEX arr:1 $ 20 1 3
+
+// 27. 多数组追加
+JSON.SET arr:2 $ '[["a","b"],["c"]]'
+JSON.ARRAPPEND arr:2 $[0] "d"
+
+// 28. 边界修剪
+JSON.ARRTRIM arr:1 $ -3 -1
+
+// 29. 空数组弹出
+JSON.ARRPOP empty:1 $
+
+// 30. 数组类型验证
+JSON.TYPE arr:1 $
+
+// 31. 数值增加
+JSON.NUMINCRBY user:1 $.age 2
+
+// 32. 数值乘法
+JSON.NUMMULTBY user:1 $.age 1.1
+
+// 33. 嵌套数值操作
+JSON.SET account:1 $ '{"balance":1000.5}'
+JSON.NUMINCRBY account:1 $.balance -200
+
+// 34. 非数值处理
+JSON.NUMMULTBY user:1 $.name 2  // 应返回错误
+
+// 35. 多路径数值更新
+JSON.MSET account:1 $.balance 900 user:1 $.score 85
+
+// 36. 小数运算
+JSON.NUMINCRBY account:1 $.balance 0.075
+
+// 37. 零值乘法
+JSON.NUMMULTBY account:1 $.balance 0
+
+// 38. 负值增加
+JSON.NUMINCRBY account:1 $.balance -500
+
+// 39. 大数操作
+JSON.NUMINCRBY account:1 $.balance 1e6
+
+// 40. 类型转换检查
+JSON.TYPE account:1 $.balance
+
+// 41. 获取对象键
+JSON.OBJKEYS user:1 $.address
+
+// 42. 获取对象长度
+JSON.OBJLEN user:1
+
+// 43. 空对象处理
+JSON.SET emptyObj:1 $ '{}'
+JSON.OBJLEN emptyObj:1
+
+// 44. 嵌套对象键
+JSON.SET complex:1 $ '{"L1":{"L2":{"key":"value"}}}'
+JSON.OBJKEYS complex:1 $.L1.L2
+
+// 45. 不存在的路径
+JSON.OBJKEYS user:1 $.invalid
+
+// 46. 清除对象内容
+JSON.CLEAR complex:1 $.L1
+
+// 47. 合并替换对象
+JSON.MERGE user:1 $.address '{"country":"France"}'
+
+// 48. 多级路径创建
+JSON.SET new:1 $.l1.l2 '{}'  // 自动创建路径
+JSON.OBJKEYS new:1 $
+
+// 49. 条件设置对象
+JSON.SET user:1 $.metadata '{"created":"2023"}' NX
+
+// 50. 删除对象字段
+JSON.DEL user:1 $.address.zip

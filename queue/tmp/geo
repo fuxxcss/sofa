@@ -1,0 +1,31 @@
+GEOADD cities 121.5 31.2 "Shanghai"
+GEOPOS cities "Shanghai"  
+GEOADD cities 114.0 22.5 "Guangzhou" 126.7 45.3 "Harbin"
+GEOPOS cities "Guangzhou" "Harbin"  
+GEOADD cities NX 121.6 31.3 "Shanghai" 
+GEOPOS cities "Shanghai" 
+GEOADD cities XX 121.6 31.3 "Shanghai"  
+GEOPOS cities "Shanghai" 
+GEOADD cities CH 117.2 31.8 "Nanjing" 121.6 31.3 "Shanghai"
+GEOADD invalid 0 80 "NorthPole"  
+GEODIST cities "Shanghai" "Guangzhou" FT
+GEODIST cities "Shanghai" "Harbin" KM  
+GEOHASH cities "Shanghai"  
+GEOHASH cities "Shanghai" "Guangzhou" 
+GEOSEARCH cities FROMMEMBER "Shanghai" BYRADIUS 1000 KM WITHCOORD WITHDIST
+GEOSEARCH cities FROMLONLAT 120 30 BYRADIUS 500 KM ASC COUNT 2
+GEOSEARCH cities FROMLONLAT 110 25 BYBOX 1000 KM 500 KM WITHHASH
+GEOSEARCH cities FROMMEMBER "Guangzhou" BYRADIUS 2000 KM COUNT 1 ANY
+GEOSEARCHSTORE result_set cities FROMMEMBER "Shanghai" BYRADIUS 1500 KM
+ZCARD result_set
+GEOSEARCHSTORE dist_set cities FROMMEMBER "Harbin" BYRADIUS 2000 KM STOREDIST
+ZRANGE dist_set 0 -1 WITHSCORES  
+SET existing_key "not_a_geo"
+GEOSEARCHSTORE existing_key cities FROMLONLAT 130 40 BYRADIUS 3000 KM
+DEL test_geo
+GEOADD test_geo CH 10 10 "A" 10 10 "A" 
+GEOADD test_geo CH NX 20 20 "B"  
+ZRANGE cities 0 -1 
+GEOHASH cities "Shanghai" 
+ZREM cities "Harbin"
+GEOPOS cities "Harbin"  

@@ -1,0 +1,44 @@
+XADD test_stream * field1 value1 field2 value2
+XADD test_stream * name Alice age 30
+XADD test_stream 1526919030474-55 message "Hello"  
+XADD test_stream 0-1 message "minID"
+XADD test_stream MAXLEN = 100 * data "entry"        
+XADD test_stream MAXLEN ~ 100 * data "entry"      
+XLEN test_stream 
+XRANGE test_stream - +                       
+XRANGE test_stream 1526919030474-0 1526919030474-10 
+XREVRANGE test_stream + - COUNT 5
+XREVRANGE test_stream 1526919030474-10 1526919030474-0
+XTRIM test_stream MAXLEN 50                        
+XTRIM test_stream MAXLEN ~ 50 LIMIT 10  
+XGROUP CREATE test_stream group1 0                  
+XGROUP CREATE test_stream group2 $ MKSTREAM
+XGROUP CREATECONSUMER test_stream group1 consumer1  
+XREADGROUP GROUP group1 consumer2 STREAMS test_stream > 
+XGROUP DELCONSUMER test_stream group1 consumer1
+XGROUP DESTROY test_stream group1
+XGROUP SETID test_stream group2 0   
+XREAD COUNT 10 STREAMS test_stream 0-0 
+XREAD BLOCK 5000 STREAMS test_stream $ 
+XREADGROUP GROUP group2 consumer3 BLOCK 1000 COUNT 5 STREAMS test_stream >
+XREADGROUP GROUP group2 consumer3 STREAMS test_stream 0
+XACK test_stream group2 1526919030474-0 
+XACK test_stream group2 1526919030474-0 1526919030474-1
+XPENDING test_stream group2                        
+XPENDING test_stream group2 - + 10 consumer3        
+XCLAIM test_stream group2 consumer4 3600000 1526919030474-0 
+XCLAIM test_stream group2 consumer4 3600000 1526919030474-0 JUSTID 
+XAUTOCLAIM test_stream group2 consumer5 3600000 0-0 COUNT 20 
+XAUTOCLAIM test_stream group2 consumer5 3600000 0-0 JUSTID   
+XDEL test_stream 1526919030474-0                    
+XDEL test_stream 1526919030474-0 1526919030474-1   
+XINFO CONSUMERS test_stream group2
+XINFO GROUPS test_stream 
+XINFO STREAM test_stream                         
+XINFO STREAM test_stream FULL COUNT 5
+XGROUP CREATE new_stream group3 $ MKSTREAM       
+XADD new_stream * data "init"                      
+XREADGROUP GROUP group3 consumer7 STREAMS new_stream > 
+XINFO CONSUMERS new_stream group3
+XTRIM test_stream MAXLEN 10
+XPENDING test_stream group2  

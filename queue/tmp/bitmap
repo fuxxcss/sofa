@@ -1,0 +1,31 @@
+SETBIT bitcount_key 0 1 
+BITCOUNT bitcount_key                                                              
+BITCOUNT bitcount_key 1 1 BYTE                 
+BITCOUNT bitcount_key 0 7 BIT                                             
+SETBIT setget_key 3 1                          
+GETBIT setget_key 3                                   
+BITFIELD bf_key SET u8 0 255                  
+BITFIELD bf_key GET u8 0                      
+BITFIELD bf_key INCRBY i8 0 10                 
+BITFIELD bf_key GET i8 0                       
+BITFIELD bf_key OVERFLOW SAT INCRBY u2 0 2     
+BITFIELD bf_key GET u2 0                       
+BITFIELD bf_key SET u4 #0 15 SET u4 #1 15      
+BITFIELD bf_key GET u4 #0 GET u4 #1            
+BITFIELD bf_key OVERFLOW FAIL INCRBY i3 0 1    
+BITFIELD bf_key GET i3 0                      
+BITFIELD_RO bf_key GET u8 0                    
+SET key1 "\x01\x02" 
+SET key2 "\x03\x02"        
+BITOP AND dest_key key1 key2                    
+GET dest_key                                   
+BITOP OR dest_or key1 key2                   
+BITCOUNT dest_or                              
+BITOP XOR dest_xor key1 key2                  
+GETBIT dest_xor 1                            
+BITOP NOT dest_not key1                      
+BITCOUNT dest_not                                                      
+SETBIT pos_key 5 1       
+BITPOS pos_key 1                                                        
+BITPOS pos_key 1 0 1 BYTE                      
+BITPOS pos_key 1 6 15 BIT                

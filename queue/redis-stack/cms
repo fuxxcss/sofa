@@ -1,0 +1,185 @@
+// 1. 维度初始化
+CMS.INITBYDIM network_traffic 2000 7
+
+// 2. 概率初始化
+CMS.INITBYPROB user_actions 0.001 0.01
+
+// 3. 重复初始化尝试
+CMS.INITBYDIM network_traffic 3000 5  // 应返回错误
+
+// 4. 极窄草图
+CMS.INITBYDIM narrow_sketch 10 10
+
+// 5. 极深草图
+CMS.INITBYDIM deep_sketch 50 20
+
+// 6. 高精度需求
+CMS.INITBYPROB precise_count 0.0001 0.001
+
+// 7. 低精度需求
+CMS.INITBYPROB rough_estimate 0.1 0.5
+
+// 8. 获取初始信息
+CMS.INFO user_actions
+
+// 9. 获取未初始化信息
+CMS.INFO non_existent_sketch  // 应返回错误
+
+// 10. 超大维度初始化
+CMS.INITBYDIM big_sketch 100000 15
+
+// 11. 单项目计数
+CMS.INCRBY network_traffic "192.168.1.1" 1
+
+// 12. 多项目计数
+CMS.INCRBY user_actions "login" 5 "purchase" 3 "logout" 2
+
+// 13. 大增量操作
+CMS.INCRBY network_traffic "10.0.0.1" 1000000
+
+// 14. 负数增量
+CMS.INCRBY user_actions "refund" -2  // 应返回错误
+
+// 15. 零增量
+CMS.INCRBY network_traffic "192.168.1.2" 0  // 应返回错误
+
+// 16. 浮点数增量
+CMS.INCRBY user_actions "click" 1.5  // 应返回错误
+
+// 17. 长键名测试
+CMS.INCRBY network_traffic "server.api.v2.users.get?id=12345" 1
+
+// 18. 特殊字符键
+CMS.INCRBY user_actions "user:login#2023" 1
+
+// 19. 重复增量
+CMS.INCRBY user_actions "login" 3
+CMS.INCRBY user_actions "login" 2
+
+// 20. 混合类型增量
+CMS.INCRBY network_traffic "10.0.0.2" 5 "10.0.0.3" 10
+
+// 21. 查询单项目
+CMS.QUERY user_actions "login"
+
+// 22. 查询多项目
+CMS.QUERY network_traffic "192.168.1.1" "10.0.0.1"
+
+// 23. 查询未记录项目
+CMS.QUERY user_actions "unused_action"
+
+// 24. 查询前验证信息
+CMS.INFO network_traffic
+CMS.QUERY network_traffic "192.168.1.1"
+
+// 25. 空键查询
+CMS.QUERY user_actions ""  // 应返回0
+
+// 26. 准备源草图
+CMS.INITBYDIM sketch_A 1000 7
+CMS.INCRBY sketch_A "event1" 10 "event2" 5
+CMS.INITBYDIM sketch_B 1000 7
+CMS.INCRBY sketch_B "event1" 3 "event3" 8
+
+// 27. 等权重合并
+CMS.MERGE merged_sketch 2 sketch_A sketch_B
+
+// 28. 加权合并
+CMS.MERGE weighted_merge 2 sketch_A sketch_B WEIGHTS 2 0.5
+
+// 29. 查询合并结果
+CMS.QUERY merged_sketch "event1" "event2" "event3"
+
+// 30. 多草图合并
+CMS.INITBYDIM sketch_C 1000 7
+CMS.INCRBY sketch_C "event1" 2 "event4" 7
+CMS.MERGE big_merge 3 sketch_A sketch_B sketch_C
+
+// 31. 不同维度合并
+CMS.INITBYDIM sketch_D 500 10
+CMS.MERGE invalid_merge 2 sketch_A sketch_D  // 应返回错误
+
+// 32. 自合并测试
+CMS.MERGE self_merge 1 sketch_A  // 应返回错误
+
+// 33. 空数组合并
+CMS.MERGE empty_merge 0  // 应返回错误
+
+// 34. 合并后信息检查
+CMS.INFO merged_sketch
+
+// 35. 多次合并验证
+CMS.MERGE remerge 2 merged_sketch sketch_C
+CMS.QUERY remerge "event1"
+
+// 36. 最小维度
+CMS.INITBYDIM min_sketch 1 1
+
+// 37. 最小概率
+CMS.INITBYPROB min_prob_sketch 0.000001 0.000001
+
+// 38. 边界概率值
+CMS.INITBYPROB edge_prob1 0 0.5  // 应返回错误
+CMS.INITBYPROB edge_prob2 0.5 0  // 应返回错误
+CMS.INITBYPROB edge_prob3 1 0.5  // 应返回错误
+CMS.INITBYPROB edge_prob4 0.5 1  // 应返回错误
+
+// 39. 超大增量
+CMS.INCRBY min_sketch "test" 9223372036854775807  // 最大64位整数
+
+// 40. 增量溢出测试
+CMS.INCRBY min_sketch "test" 1  // 可能导致整数溢出
+
+// 41. 高频项目测试
+FOR i IN 1 1000; DO
+  CMS.INCRBY frequency_sketch "common_item" 1
+END
+
+// 42. 低频项目测试
+CMS.INCRBY frequency_sketch "rare_item" 1
+
+// 43. 草图容量测试
+FOR i IN 1 10000; DO
+  CMS.INCRBY capacity_sketch "item_$i" 1
+END
+
+// 44. 查询未初始化
+CMS.QUERY invalid_sketch "test"  // 应返回错误
+
+// 45. 空查询
+CMS.QUERY user_actions  // 应返回错误
+
+// 46. 实时流量监控
+CMS.INCRBY network_traffic "10.0.0.5" $(shuf -i 1-100 -n 1)
+CMS.QUERY network_traffic "10.0.0.5"
+
+// 47. A/B测试计数
+CMS.INCRBY ab_test "variant_A" $((RANDOM % 10 + 1))
+CMS.INCRBY ab_test "variant_B" $((RANDOM % 10 + 1))
+CMS.QUERY ab_test "variant_A" "variant_B"
+
+// 48. 分布式计数合并
+// 节点1
+CMS.INITBYDIM node1 2000 7
+CMS.INCRBY node1 "eventX" 50
+// 节点2
+CMS.INITBYDIM node2 2000 7
+CMS.INCRBY node2 "eventX" 30 "eventY" 20
+// 合并节点
+CMS.MERGE global_count 2 node1 node2
+
+// 49. 时间窗口计数
+CMS.INITBYDIM window_10min 1000 7
+// 每10分钟: 
+CMS.INCRBY window_10min "api_call" $(curl -s api_metrics)
+CMS.MERGE daily_count 144 window_10min...  // 合并144个10分钟窗口
+
+// 50. 误差率验证
+// 初始化
+CMS.INITBYPROB error_test 0.01 0.01
+// 添加已知计数
+FOR i IN 1 1000; DO
+  CMS.INCRBY error_test "known_item" 1
+END
+// 查询验证
+CMS.QUERY error_test "known_item"  // 应≈1000
