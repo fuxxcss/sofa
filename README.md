@@ -1,4 +1,6 @@
-# Redi2Fuzz
+![](https://github.com/fuxxcss/sofa/blob/main/docs/sofa.png)
+--
+
 * [What is it ?](#introduction)
 * [Prepare DBMS](#prepare-targets)
    * [Redis](#redis)
